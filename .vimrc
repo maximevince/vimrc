@@ -17,6 +17,8 @@ Plugin 'ctrlpvim/ctrlp.vim'                 " Fuzzy file, buffer, mru, tag, etc 
 Plugin 'ludovicchabant/vim-gutentags'       " A Vim plugin that manages your tag files
 Plugin 'Valloric/YouCompleteMe'             " A code-completion engine for Vim
 Plugin 'JamshedVesuna/vim-markdown-preview' " A light Vim plugin for previewing markdown files in a browser - without having to leave Vim.
+Plugin 'w0rp/ale'                           " Asynchronous Lint Engine
+Plugin 'brookhong/cscope.vim'               " A vim plugin to help you to create/update cscope database and connect to existing proper database automatically.
 "Plugin 'tpope/vim-fugitive'                " a Git wrapper so awesome, it should be illegal
 
 " All of your Plugins must be added before the following line
@@ -78,6 +80,31 @@ nnoremap <C-F7> 7gt
 nnoremap <C-F8> 8gt
 nnoremap <C-F9> 9gt
 nnoremap <C-F0> 10gt
+
+" CScope bindings
+" a: Find Interfactive
+nnoremap <leader>fa :call CscopeFindInteractive(expand('<cword>'))<CR>
+" s: Find this C symbol
+nnoremap  <leader>fs :call CscopeFind('s', expand('<cword>'))<CR>
+" g: Find this definition
+nnoremap  <leader>fg :call CscopeFind('g', expand('<cword>'))<CR>
+" d: Find functions called by this function
+nnoremap  <leader>fd :call CscopeFind('d', expand('<cword>'))<CR>
+" c: Find functions calling this function
+nnoremap  <leader>fc :call CscopeFind('c', expand('<cword>'))<CR>
+" t: Find this text string
+nnoremap  <leader>ft :call CscopeFind('t', expand('<cword>'))<CR>
+" e: Find this egrep pattern
+nnoremap  <leader>fe :call CscopeFind('e', expand('<cword>'))<CR>
+" f: Find this file
+nnoremap  <leader>ff :call CscopeFind('f', expand('<cword>'))<CR>
+" i: Find files #including this file
+nnoremap  <leader>fi :call CscopeFind('i', expand('<cword>'))<CR>
+nnoremap <leader>l :call ToggleLocationList()<CR>
+
+" F2/F3 for previous/next compiler error/warning
+map	<F2>	:cprev<CR> 
+map	<F3>	:cnext<CR> 
 
 " F9 toggles wrapping
 nnoremap <F9> :set wrap!<CR>
