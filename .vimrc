@@ -1,38 +1,36 @@
 set nocompatible
 filetype off
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+" set the runtime path to include vim-plug and initialize
+call plug#begin('~/.vim/plugged')
 
 "
-" VUNDLE PLUGINS "
+" VIM-PLUG PLUGINS "
 "
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'vim-airline/vim-airline'            " Lean & mean status/tabline for vim that's light as air
-Plugin 'majutsushi/tagbar'                  " Vim plugin that displays tags in a window, ordered by scope
-Plugin 'ctrlpvim/ctrlp.vim'                 " Fuzzy file, buffer, mru, tag, etc finder. 
-Plugin 'ludovicchabant/vim-gutentags'       " A Vim plugin that manages your tag files
-Plugin 'JamshedVesuna/vim-markdown-preview' " A light Vim plugin for previewing markdown files in a browser - without having to leave Vim.
-Plugin 'brookhong/cscope.vim'               " A vim plugin to help you to create/update cscope database and connect to existing proper database automatically.
-Plugin 'tpope/vim-fugitive'                 " a Git wrapper so awesome, it should be illegal
-Plugin 'neoclide/coc.nvim'                  " Base16 for Vim https://github.com/chriskempson/base16
-"Plugin 'chriskempson/base16-vim'            " Intellisense engine for vim8 & neovim, full language server protocol support as VSCode 
-"Plugin 'Valloric/YouCompleteMe'             " A code-completion engine for Vim
-"Plugin 'w0rp/ale'                           " Asynchronous Lint Engine
+Plug 'vim-airline/vim-airline'            " Lean & mean status/tabline for vim that's light as air
+Plug 'majutsushi/tagbar'                  " Vim plugin that displays tags in a window, ordered by scope
+Plug 'ctrlpvim/ctrlp.vim'                 " Fuzzy file, buffer, mru, tag, etc finder. 
+Plug 'ludovicchabant/vim-gutentags'       " A Vim plugin that manages your tag files
+Plug 'JamshedVesuna/vim-markdown-preview' " A light Vim plugin for previewing markdown files in a browser - without having to leave Vim.
+Plug 'brookhong/cscope.vim'               " A vim plugin to help you to create/update cscope database and connect to existing proper database automatically.
+Plug 'tpope/vim-fugitive'                 " a Git wrapper so awesome, it should be illegal
+Plug 'neoclide/coc.nvim', {'branch': 'release'} " Intellisense engine for vim8 & neovim, full language server protocol support as VSCode 
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'ayu-theme/ayu-vim'
+"Plug 'chriskempson/base16-vim'            " Base16 for Vim https://github.com/chriskempson/base16
+"Plug 'Valloric/YouCompleteMe'             " A code-completion engine for Vim
+"Plug 'w0rp/ale'                           " Asynchronous Lint Engine
 
 if !has('nvim')
-  Plugin 'roxma/nvim-yarp'
-  Plugin 'roxma/vim-hug-neovim-rpc'
+  Plug 'roxma/nvim-yarp'
+  Plug 'roxma/vim-hug-neovim-rpc'
 endif
 
-Plugin 'Shougo/neosnippet.vim'
-Plugin 'Shougo/neosnippet-snippets'
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
 
 " All of your Plugins must be added before the following line
-call vundle#end()            " required
+call plug#end()            " required
 
 "
 " OTHER VIM OPTIONS "
@@ -44,9 +42,12 @@ set smartindent
 set shiftwidth=4
 set expandtab
 syntax on
-color mustang
-"colorscheme base16-default-dark
-set background=dark
+"color mustang
+colorscheme PaperColor
+set termguicolors
+let ayucolor="light"  " for light version of theme
+let g:airline_theme='ayu'
+set background=light
 set showcmd
 set ignorecase
 set smartcase
@@ -148,7 +149,9 @@ endif
 
 " CtrlP option such that .git submodules are also parsed
 "let g:ctrlp_root_markers=['.ctrlp_root']
-let g:ctrlp_user_command='git ls-files --recurse-submodules'
+"let g:ctrlp_user_command='git ls-files --recurse-submodules'
+" smarter ctrlp_user_command that will also index submodules
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard && git submodule foreach "git ls-files -co --exclude-standard | while read i; do echo \"\$path/\$i\"; done"']
 
 
 " Have Vimdiff ignore whitespace changes
