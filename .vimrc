@@ -44,9 +44,10 @@ set expandtab
 syntax on
 "color mustang
 colorscheme PaperColor
-set termguicolors
+"set termguicolors
 let ayucolor="light"  " for light version of theme
 let g:airline_theme='ayu'
+let g:airline_powerline_fonts = 1
 set background=light
 set showcmd
 set ignorecase
@@ -54,7 +55,7 @@ set smartcase
 set autoindent
 set ruler
 set laststatus=2
-set visualbell
+set novisualbell
 set number
 set nocompatible
 set t_Co=256
