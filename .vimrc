@@ -1,6 +1,8 @@
 set nocompatible
 filetype off
 
+runtime ftplugin/man.vim
+
 " set the runtime path to include vim-plug and initialize
 call plug#begin('~/.vim/plugged')
 
@@ -9,28 +11,56 @@ call plug#begin('~/.vim/plugged')
 "
 Plug 'vim-airline/vim-airline'            " Lean & mean status/tabline for vim that's light as air
 Plug 'majutsushi/tagbar'                  " Vim plugin that displays tags in a window, ordered by scope
-Plug 'ctrlpvim/ctrlp.vim'                 " Fuzzy file, buffer, mru, tag, etc finder. 
+"Plug 'ctrlpvim/ctrlp.vim'                 " Fuzzy file, buffer, mru, tag, etc finder. 
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'dbakker/vim-projectroot'            " Find out which project a file belongs to, easy to use in scripts/mappings
 Plug 'ludovicchabant/vim-gutentags'       " A Vim plugin that manages your tag files
+Plug 'skywind3000/gutentags_plus'         " The right way to use gtags with gutentags
 Plug 'JamshedVesuna/vim-markdown-preview' " A light Vim plugin for previewing markdown files in a browser - without having to leave Vim.
 Plug 'brookhong/cscope.vim'               " A vim plugin to help you to create/update cscope database and connect to existing proper database automatically.
 Plug 'tpope/vim-fugitive'                 " a Git wrapper so awesome, it should be illegal
 Plug 'neoclide/coc.nvim', {'branch': 'release'} " Intellisense engine for vim8 & neovim, full language server protocol support as VSCode 
-Plug 'NLKNguyen/papercolor-theme'
-Plug 'ayu-theme/ayu-vim'
-"Plug 'chriskempson/base16-vim'            " Base16 for Vim https://github.com/chriskempson/base16
-"Plug 'Valloric/YouCompleteMe'             " A code-completion engine for Vim
-"Plug 'w0rp/ale'                           " Asynchronous Lint Engine
+Plug 'mfukar/robotframework-vim'          " Robot framework syntax highlighting
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
+Plug 'vim-scripts/SingleCompile'          " Make it more convenient to compile or run a single source file.
+Plug 'bhurlow/vim-parinfer'               " 
+Plug 'tpope/vim-fireplace'                " 
 
 if !has('nvim')
   Plug 'roxma/nvim-yarp'
   Plug 'roxma/vim-hug-neovim-rpc'
 endif
 
-Plug 'Shougo/neosnippet.vim'
-Plug 'Shougo/neosnippet-snippets'
+
+"Plug 'NLKNguyen/papercolor-theme'
+"Plug 'ayu-theme/ayu-vim'
+"Plug 'chriskempson/base16-vim'            " Base16 for Vim https://github.com/chriskempson/base16
 
 " All of your Plugins must be added before the following line
 call plug#end()            " required
+
+
+packadd termdebug
+let g:termdebug_wide=1
+let g:termdebugger = 'arm-none-eabi-gdb'
+
+" Rootmarkers for vim-projectroot
+let g:rootmarkers = ['.west','.projectroot','.git','.hg','.svn','.bzr','_darcs','build.xml']
+" Let gutentags use vim-projectroot results
+let g:gutentags_project_root_finder = 'projectroot#get'
+" generate datebases in my cache directory, prevent gtags files polluting my project
+let g:gutentags_cache_dir = expand('~/.cache/tags')
+
+" For fzf -> find git root automatically
+"function! s:find_git_root()
+"  return system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
+"endfunction
+
+"command! ProjectFiles execute 'Files' s:find_git_root()
+command! ProjectFiles execute 'Files' projectroot#guess()
+
 
 "
 " OTHER VIM OPTIONS "
@@ -42,13 +72,15 @@ set smartindent
 set shiftwidth=4
 set expandtab
 syntax on
-"color mustang
-colorscheme PaperColor
-"set termguicolors
-let ayucolor="light"  " for light version of theme
-let g:airline_theme='ayu'
-let g:airline_powerline_fonts = 1
-set background=light
+set termguicolors
+
+"colorscheme PaperColor
+"let ayucolor="light"  " for light version of theme
+"set background=light
+color mustang
+set background=dark
+
+"let g:airline_theme='ayu'
 set showcmd
 set ignorecase
 set smartcase
@@ -78,10 +110,13 @@ endif
 " F2/F3 for previous/next compiler error/warning
 map	<F2>	  :cprev<CR> 
 map	<F3>	  :cnext<CR> 
-nnoremap <F7> :YcmForceCompileAndDiagnostics <CR>
+nnoremap <F4> :SCCompileRunAF -g -Wall -Wextra -std=c++2a<cr>
+nnoremap <F5> :!west flash <CR>
+" nnoremap <F7> :YcmForceCompileAndDiagnostics <CR>
+nnoremap <F7> :!west build <CR>
 nmap <F8> :TagbarToggle<CR>
 nnoremap <F9> :set wrap!<CR>
-map <C-p> :CtrlP<CR>
+map <C-p>     :ProjectFiles<CR>
 
 " CScope bindings
 " a: Find Interfactive
@@ -162,13 +197,15 @@ if &diff
 endif
 
 
+" Use Ctrl+Shift K to show manpage
+nnoremap <expr><silent> <C-K> ':Man '.expand('<cword>').'<CR>'
+
+" , + space to clear search
+nnoremap <silent> ,<space> :nohlsearch<CR>
 
 
-
-"
-" COC VIM OPTIONS "
-
-"" Some servers have issues with backup files, see #649
+"""""""""""""" COC SETUP """"""""""""""""
+" Some servers have issues with backup files, see #649
 set nobackup
 set nowritebackup
 
@@ -207,8 +244,9 @@ inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 " inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
 
 " Use `[c` and `]c` to navigate diagnostics
-nmap <silent> [c <Plug>(coc-diagnostic-prev)
-nmap <silent> ]c <Plug>(coc-diagnostic-next)
+" CLASHES WITH VIMDIFF
+"nmap <silent> [c <Plug>(coc-diagnostic-prev)
+"nmap <silent> ]c <Plug>(coc-diagnostic-next)
 
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
@@ -289,5 +327,11 @@ nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 
-
-
+" VIM in TMUX mouse support
+" Widescreen scroll fix (sgr)
+if has("mouse_sgr")
+    set ttymouse=sgr
+elseif !has('nvim')
+    set ttymouse=xterm2
+end
+set mouse=a
